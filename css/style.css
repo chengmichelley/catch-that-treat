@@ -13,6 +13,7 @@ body {
     max-width: 50%;
     margin: auto;
     cursor: url(/images/Milo\ Animation.PNG) 10 10, auto;
+    overflow: hidden;
 }
 
 .square {
@@ -25,7 +26,11 @@ body {
     height: 50x;
 }
 
+#start {
+    margin-bottom: 30px;
+}
+
 #reset {
-    margin: 50px;
+    margin: 30px;
 }
 
