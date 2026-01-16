@@ -3,34 +3,33 @@
 
 const player = [];
 const win = [];
-const lose = [];
+const loss = [];
 const tennisBalls = [];
-const milkBone = [];
-const iceCreamCone = [];
-const broccoli = [];
-const apple = [];
 
-// Define constants and variables.
-// Player will be Milo the puppy 
-// cursor will be an animation of a dog 
-// Will click a button to start game.
-// Countdown 3,2,1
-// Various treats will drop randomly for 1 minute from the top of the page.
-// Good treats will be milk bones & ice cream cones
-// Bad treats will be healthy foods like broccoli & apples
-// Objective will be to collect 10 good treats in 1 minute.
-// If too many bad treats(3) are collected(clicked) Milo will be upset and bark.Resulting in losing and game over.
-// If not enough good treats(10) are collected(clicked) in one minute Milo will be upset and bark.Resulting in losing and game over.
-// If enough treats are collected in one minute, Milo will be happy and he will howl.Resulting in game win.Tennis balls will bounce around. 
-// After game over player can restart and play again. 
 
 /*---------------------------- Variables (state) ----------------------------*/
 
 let board;
+let gameActive;
+let gameInterval;
 let startTime;
-let timeLimit;
+let timeLeft;
 let goodTreatCount;
 let badTreatCount;
+let treat;
+let treatID;
+
+class Treat {
+    constructor(type, name) {
+        this.type = type || 'good';
+        this.name = name;
+    }
+}
+
+const milkBone = new Treat('good', 'Milkbone');
+const iceCreamCone = new Treat('good', 'Ice Cream Cone');
+const broccoli = new Treat('bad', 'Broccoli');
+const apple = new Treat('bad', 'Apple');
 
 let goodTreats = [milkBone, iceCreamCone];
 
@@ -38,13 +37,19 @@ let badTreats = [broccoli, apple];
 
 /*------------------------ Cached Element References ------------------------*/
 
+const boardEl = document.querySelector('.board');
+
 const squareEls = document.querySelectorAll('.square');
+
+const treatEls = document.querySelectorAll('.treat');
 
 const messageEl = document.querySelector('.message');
 
 const goodTreatDisplay = document.getElementById('good-treat-count');
 
-const badTreatDisplay = document.getElementById('bad-treat-count');
+const badTreatDisplay = document.getElementById(`bad-treat-count`);
+
+const timerDisplay = document.querySelector('#timer');
 
 const startButtonEl = document.querySelector('#start');
 
@@ -52,6 +57,72 @@ const resetButtonEl = document.querySelector('#reset');
 
 
 /*-------------------------------- Functions --------------------------------*/
+
+const startGame = () => {
+    if(gameActive) 
+        return;
+    init();
+    gameActive = true;
+    gameInterval = setInterval(() => {
+        updateTimer();
+    }, 1000);
+    dropTreats();
+};
+
+const updateTimer = () => {
+    timeLeft--;
+    if(timeLeft === 0) {
+        timeLeft = 0;
+        updateMessage(`Time's up!`);
+        endGame();
+    }
+    render();
+};
+
+const dropTreats = () => {
+    const treatIds = ['milkBone', 'iceCreamCone', 'broccoli', 'apple'];
+
+    const dropInterval = setInterval(() => {
+        if(!gameActive) {
+            clearInterval(dropInterval);
+            return;
+        };
+        const randomId = treatIds[Math.floor(Math.random() * treatIds.length)];
+        const sourceEl = document.getElementById(randomId);
+        const newTreat = sourceEl.cloneNode(true);
+
+        newTreat.removeAttribute('id');
+        newTreat.style.display = 'block';
+    
+        const maxX = boardEl.clientWidth - 50;
+        newTreat.style.left = `${Math.floor(Math.random() * maxX)}px`;
+        boardEl.appendChild(newTreat);
+
+        newTreat.addEventListener('click', () => {
+            if(!gameActive) return;
+            if(randomId === 'milkBone' || randomId === 'iceCreamCone') {
+                goodTreatCount++;
+            } else {
+                badTreatCount++;
+            } 
+            newTreat.remove();
+            render();
+            checkForWin();
+            checkForLoss();
+        })
+        newTreat.addEventListener('animationend', () => newTreat.remove());
+    }, 1000);
+};
+
+const removeTreats = (el) => {
+    el.classList.remove('treat', ...Treat);
+    el.textContent = '';
+};
+
+const endGame = () => {
+    gameActive = false;
+    clearInterval(gameInterval);
+};
 
 const bark = () => {
     console.log('Bark!');
@@ -63,71 +134,58 @@ const howl = () => {
     //add audio of puppy howl
 };
 
-const checkForWin = (event) => {
-    const clickedEl = event.target;
-    if (goodTreatCount === 10) {
-            updateMessage(`Thank you for all the yummy treats!`);
-            howl();
+// const bounceTennisBalls = () => {
+//     console.log('bounceTennisBalls'); 
+// }; add animation to bounce balls
+
+const checkForWin = () => {
+    if (goodTreatCount >= 10) {
+        updateMessage(`Thank you for all the yummy treats!`);
+        howl();
+        endGame();
     }
  };
 
- const checkForLose = (event) => {
+const checkForLoss = (event) => {
     const clickedEl = event.target;
-    if (
-        badTreatCount === 3 || 
-        goodTreatCount < 10) {
-            updateMessage(`I don't want to eat anymore...`);
-            bark();
+    if(badTreatCount === 3) {
+        messageEl.textContent= `I don't want to eat anymore...`;
+        bark();
+        endGame();
     }
  };
 
-// const updateBoard = () => {
-//     board.forEach((cell,idx) => {
-//         squareEls[idx].textContent = cell;
-//     })
-// };
-
-const updateMessage = () => {
-    textContent(`Good treats: ${goodTreatCount} Bad treats: ${badTreatCount}`)
+const checkFinalScore = () => {
+    if(goodTreatCount < 10) {
+        messageEl.textContent= `I didn't get enough treats!`
+        bark();
+    }
+    endGame();
 };
+
+const updateMessage = (msg) => {
+    messageEl.textContent = msg;
+}
 
 const render = () => {
-    updateBoard();
-    goodTreatDisplay.textContent = goodTreatCount;
-    badTreatDisplay.textContent = badTreatCount;
+    goodTreatDisplay.textContent = `Good Treats: ${goodTreatCount}`;
+    badTreatDisplay.textContent = `Bad Treats: ${badTreatCount}`;
+    timerDisplay.textContent = timeLeft;
 };
-
-const handleClick = (event) => {
-    const clickedEl = event.target;
-    if (clickedEl.classList.contains(goodTreats)) {
-        goodTreatCount++;
-        goodTreatDisplay.textContent = goodTreatCount;
-    } else if (clickedEl.classList.contains(badTreats)) {
-        badTreatCount++;
-        badTreatDisplay.textContent = badTreatCount;
-    } else {
-        return;
-    }
-
-    checkForWin(event);
-    checkForLose(event);
+const init = () => {
+    board = Array(25).fill('');
+    goodTreatCount = 0;
+    badTreatCount = 0;
+    timeLeft = 60;
+    gameActive = false;
     render();
 };
 
-// const init = () => {
-//     board = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]
-//     render();
-// };
-
-// init();
+init();
 
 /*----------------------------- Event Listeners -----------------------------*/
 
-squareEls.forEach((square) => {
-    square.addEventListener('click', handleClick);
-});
+startButtonEl.addEventListener('click', startGame);
 
-// startButtonEl.addEventListener('click', init);
-
-// resetButtonEl.addEventListener('click', init);
+resetButtonEl.addEventListener('click', init);
 

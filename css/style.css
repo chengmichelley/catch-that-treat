@@ -7,13 +7,14 @@ body {
 }
 
 .board {
+    position: relative;
+    overflow: hidden;
     display: grid;
     grid-template-columns: repeat(5,1fr);
     grid-template-rows: repeat(5,1fr);
     max-width: 50%;
     margin: auto;
     cursor: url(/images/Milo\ Animation.PNG) 10 10, auto;
-    overflow: hidden;
 }
 
 .square {
@@ -24,6 +25,29 @@ body {
 .custom-cursor {
     width: 50px;
     height: 50x;
+}
+
+.treat img {
+    width: 15%;
+    object-fit: contain;
+}
+
+.treat {
+    position: absolute;
+    top: 0px;
+    left: 10%;
+    transform: translateX(-50%);
+    animation: fall 10s linear forwards;
+    z-index: 10;
+}
+
+@keyframes fall {
+    0% {
+        top: -50px;
+    }
+    100% {
+        top: calc(100%);
+    }
 }
 
 #start {
