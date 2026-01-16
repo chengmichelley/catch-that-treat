@@ -1,9 +1,9 @@
 body {
-    background-color:#faebd7;
+    height: 100dvh;
+    background-color:#FEEE91;
     font-family: 'Arial Rounded', sans-serif; 
     text-align: center;
-    height: 100vh;
-    margin-bottom: 100px;
+    box-sizing: border-box;
 }
 
 .board {
@@ -15,11 +15,13 @@ body {
     max-width: 50%;
     margin: auto;
     cursor: url(/images/Milo\ Animation.PNG) 10 10, auto;
+    border: 5px solid #1b348e;
+    background-color: #ACE4FF;
 }
 
 .square {
     aspect-ratio: 1/1;
-    border: 1px solid rgb(250, 250, 250);
+    border: 0px solid rgba(250, 250, 250, 0);
 }
 
 .custom-cursor {
@@ -48,6 +50,10 @@ body {
     100% {
         top: calc(100%);
     }
+}
+
+#milkBone, #iceCreamCone, #broccoli, #apple {
+    display: none;
 }
 
 #start {

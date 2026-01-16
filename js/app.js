@@ -1,77 +1,37 @@
 /*-------------------------------- Constants --------------------------------*/
 
-
-const player = [];
-const win = [];
-const loss = [];
-const tennisBalls = [];
-
-
 /*---------------------------- Variables (state) ----------------------------*/
 
-let board;
 let gameActive;
 let gameInterval;
-let startTime;
 let timeLeft;
 let goodTreatCount;
 let badTreatCount;
-let treat;
-let treatID;
-
-class Treat {
-    constructor(type, name) {
-        this.type = type || 'good';
-        this.name = name;
-    }
-}
-
-const milkBone = new Treat('good', 'Milkbone');
-const iceCreamCone = new Treat('good', 'Ice Cream Cone');
-const broccoli = new Treat('bad', 'Broccoli');
-const apple = new Treat('bad', 'Apple');
-
-let goodTreats = [milkBone, iceCreamCone];
-
-let badTreats = [broccoli, apple];
 
 /*------------------------ Cached Element References ------------------------*/
 
 const boardEl = document.querySelector('.board');
-
-const squareEls = document.querySelectorAll('.square');
-
-const treatEls = document.querySelectorAll('.treat');
-
-const messageEl = document.querySelector('.message');
-
+const messageEl = document.querySelector('#message');
 const goodTreatDisplay = document.getElementById('good-treat-count');
-
-const badTreatDisplay = document.getElementById(`bad-treat-count`);
-
+const badTreatDisplay = document.getElementById('bad-treat-count');
 const timerDisplay = document.querySelector('#timer');
-
 const startButtonEl = document.querySelector('#start');
-
 const resetButtonEl = document.querySelector('#reset');
 
 
 /*-------------------------------- Functions --------------------------------*/
 
 const startGame = () => {
-    if(gameActive) 
-        return;
+    if(gameActive) return;
     init();
     gameActive = true;
-    gameInterval = setInterval(() => {
-        updateTimer();
-    }, 1000);
+    gameInterval = setInterval(updateTimer, 1000);
     dropTreats();
 };
 
 const updateTimer = () => {
     timeLeft--;
-    if(timeLeft === 0) {
+    if(timeLeft <= 0) {
         timeLeft = 0;
         updateMessage(`Time's up!`);
         endGame();
@@ -89,9 +49,11 @@ const dropTreats = () => {
         };
         const randomId = treatIds[Math.floor(Math.random() * treatIds.length)];
         const sourceEl = document.getElementById(randomId);
-        const newTreat = sourceEl.cloneNode(true);
+        if(!sourceEl) return;
 
+        const newTreat = sourceEl.cloneNode(true);
         newTreat.removeAttribute('id');
+        newTreat.classList.add('falling-treat');
         newTreat.style.display = 'block';
     
         const maxX = boardEl.clientWidth - 50;
@@ -114,6 +76,7 @@ const dropTreats = () => {
     }, 1000);
 };
 
+
 const removeTreats = (el) => {
     el.classList.remove('treat', ...Treat);
     el.textContent = '';
@@ -125,13 +88,13 @@ const endGame = () => {
 };
 
 const bark = () => {
-    console.log('Bark!');
-    //add audio of puppy bark
+    const audio = new Audio('audio/dogBark.mp3');
+    audio.play();
 };
 
 const howl = () => {
-    console.log('Awooo!');
-    //add audio of puppy howl
+    const audio = new Audio('audio/dogHowl.mp3');
+    audio.play();
 };
 
 // const bounceTennisBalls = () => {
@@ -147,7 +110,6 @@ const checkForWin = () => {
  };
 
 const checkForLoss = (event) => {
-    const clickedEl = event.target;
     if(badTreatCount === 3) {
         messageEl.textContent= `I don't want to eat anymore...`;
         bark();
@@ -170,14 +132,19 @@ const updateMessage = (msg) => {
 const render = () => {
     goodTreatDisplay.textContent = `Good Treats: ${goodTreatCount}`;
     badTreatDisplay.textContent = `Bad Treats: ${badTreatCount}`;
-    timerDisplay.textContent = timeLeft;
+    timerDisplay.textContent = `${timeLeft} seconds`;
 };
+
 const init = () => {
-    board = Array(25).fill('');
+    clearInterval(gameInterval);
+    gameActive = false;
     goodTreatCount = 0;
     badTreatCount = 0;
     timeLeft = 60;
-    gameActive = false;
+
+    const remainingTreats = document.querySelectorAll('.falling-treat');
+    remainingTreats.forEach(t => t.remove());
+    updateMessage();
     render();
 };
 
