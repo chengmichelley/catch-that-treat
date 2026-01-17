@@ -22,7 +22,8 @@ const resetButtonEl = document.querySelector('#reset');
 /*-------------------------------- Functions --------------------------------*/
 
 const startGame = () => {
-    if(gameActive) return;
+    if(gameActive) 
+        return;
     init();
     gameActive = true;
     gameInterval = setInterval(updateTimer, 1000);
@@ -33,7 +34,7 @@ const updateTimer = () => {
     timeLeft--;
     if(timeLeft <= 0) {
         timeLeft = 0;
-        updateMessage(`Time's up!`);
+        updateMessage(`I didn't get enough treats! 😔`);
         endGame();
     }
     render();
@@ -52,25 +53,26 @@ const dropTreats = () => {
         if(!sourceEl) return;
 
         const newTreat = sourceEl.cloneNode(true);
-        newTreat.removeAttribute('id');
-        newTreat.classList.add('falling-treat');
-        newTreat.style.display = 'block';
-    
-        const maxX = boardEl.clientWidth - 50;
-        newTreat.style.left = `${Math.floor(Math.random() * maxX)}px`;
-        boardEl.appendChild(newTreat);
+            newTreat.removeAttribute('id');
+            newTreat.classList.add('falling-treat');
+            newTreat.style.display = 'block';
 
-        newTreat.addEventListener('click', () => {
-            if(!gameActive) return;
-            if(randomId === 'milkBone' || randomId === 'iceCreamCone') {
-                goodTreatCount++;
-            } else {
-                badTreatCount++;
-            } 
+        boardEl.appendChild(newTreat);
+    
+        const treatWidth = newTreat.offsetWidth;
+        const maxX = boardEl.clientWidth - treatWidth;
+            newTreat.style.left = `${Math.floor(Math.random() * maxX)}px`;
+            newTreat.addEventListener('click', () => {
+                if(!gameActive) return;
+                if(randomId === 'milkBone' || randomId === 'iceCreamCone') {
+                    goodTreatCount++;
+                } else {
+                    badTreatCount++;
+                } 
             newTreat.remove();
-            render();
-            checkForWin();
-            checkForLoss();
+        render();
+        checkForWin();
+        checkForLoss();
         })
         newTreat.addEventListener('animationend', () => newTreat.remove());
     }, 1000);
@@ -103,7 +105,7 @@ const howl = () => {
 
 const checkForWin = () => {
     if (goodTreatCount >= 10) {
-        updateMessage(`Thank you for all the yummy treats!`);
+        updateMessage(`Thank you for all the yummy treats! 🙂`);
         howl();
         endGame();
     }
@@ -111,7 +113,7 @@ const checkForWin = () => {
 
 const checkForLoss = (event) => {
     if(badTreatCount === 3) {
-        messageEl.textContent= `I don't want to eat anymore...`;
+        messageEl.textContent = `I don't want to eat anymore... 🤢`;
         bark();
         endGame();
     }
@@ -119,7 +121,7 @@ const checkForLoss = (event) => {
 
 const checkFinalScore = () => {
     if(goodTreatCount < 10) {
-        messageEl.textContent= `I didn't get enough treats!`
+        messageEl.textContent = `I didn't get enough treats! 😔`;
         bark();
     }
     endGame();
@@ -130,8 +132,8 @@ const updateMessage = (msg) => {
 }
 
 const render = () => {
-    goodTreatDisplay.textContent = `Good Treats: ${goodTreatCount}`;
-    badTreatDisplay.textContent = `Bad Treats: ${badTreatCount}`;
+    goodTreatDisplay.textContent = ` ${goodTreatCount}`;
+    badTreatDisplay.textContent = `${badTreatCount}`;
     timerDisplay.textContent = `${timeLeft} seconds`;
 };
 
@@ -143,7 +145,7 @@ const init = () => {
     timeLeft = 60;
 
     const remainingTreats = document.querySelectorAll('.falling-treat');
-    remainingTreats.forEach(t => t.remove());
+        remainingTreats.forEach(t => t.remove());
     updateMessage();
     render();
 };
