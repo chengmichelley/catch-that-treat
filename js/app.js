@@ -99,10 +99,6 @@ const howl = () => {
     audio.play();
 };
 
-// const bounceTennisBalls = () => {
-//     console.log('bounceTennisBalls'); 
-// }; add animation to bounce balls
-
 const checkForWin = () => {
     if (goodTreatCount >= 10) {
         updateMessage(`Thank you for all the yummy treats! 🙂`);
