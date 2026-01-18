@@ -12,6 +12,7 @@ let badTreatCount;
 
 const boardEl = document.querySelector('.board');
 const messageEl = document.querySelector('#message');
+const customCursor = document.getElementById('custom-cursor');
 const goodTreatDisplay = document.getElementById('good-treat-count');
 const badTreatDisplay = document.getElementById('bad-treat-count');
 const timerDisplay = document.querySelector('#timer');
@@ -87,6 +88,11 @@ const removeTreats = (el) => {
 const endGame = () => {
     gameActive = false;
     clearInterval(gameInterval);
+    if(typeof dropInterval !== 'undefined') {
+        clearInterval(dropInterval);
+    }
+    const activeTreats = document.querySelectorAll('.falling-treat');
+    activeTreats.forEach(treat => treat.remove());
 };
 
 const bark = () => {
@@ -153,4 +159,14 @@ init();
 startButtonEl.addEventListener('click', startGame);
 
 resetButtonEl.addEventListener('click', init);
+
+boardEl.addEventListener('mousemove', (e) => {
+    customCursor.style.display = 'block';
+    customCursor.style.left = `${e.clientX}px`;
+    customCursor.style.top = `${e.clientY}px`;
+});
+
+boardEl.addEventListener('mouseleave', () => {
+    customCursor.style.display = 'none';
+});
 
